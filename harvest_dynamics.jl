@@ -19,7 +19,7 @@ using Test
 
 # ### Load the model structure (function "luc_model")
 includet("modelAGv1.jl")
-using .SLAY
+using .LAM
 
 # ------------------------------------------------------------------------------
 # ### Compute the "base" optimisation...
