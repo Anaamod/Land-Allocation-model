@@ -1,5 +1,5 @@
 
-module OLUA # OptimalLandUseAllocation
+module LAM # OptimalLandUseAllocation
 
 using Pkg
 Pkg.add("Ipopt")
