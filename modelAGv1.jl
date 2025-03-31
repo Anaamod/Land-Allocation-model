@@ -10,7 +10,7 @@ using Markdown
 using Revise
 
 # Load exoxes parameters and options
-include("default_data_SA_AG.jl")
+include("default_data_EU.jl")
 
 export luc_model, welfare,
        ben_env, ben_agr, ben_wood, ben_wood1, ben_carbon,
@@ -18,7 +18,7 @@ export luc_model, welfare,
 
 ben_env(F;benv_c1=benv_c1,benv_c2=benv_c2)                       = (benv_c1*F^benv_c2) # Environmental benefits [M$]
 ben_agr(A;bagr_c1=bagr_c1,bagr_c2=bagr_c2)                       = (bagr_c1*A^bagr_c2) # Agricultural use benefits [M$]
-ben_wood(h,V,S;bwood_c1=bwood_c1,bwood_c2=bwood_c2)        = (bwood_c1*(h*(V/S))^bwood_c2) # Wood use benefits [M$] - Here there is an important simplification that I harvest the forest homogeneously (instead of selectively the mature one)
+ben_wood(h,V,S;bwood_c=bwood_c,bwood_c2=bwood_c2)        = (bwood_c*(h*(V/S))^bwood_c2) # Wood use benefits [M$] - Here there is an important simplification that I harvest the forest homogeneously (instead of selectively the mature one)
 ben_wood1(d;bwood_c1=bwood_c1,bwood_c2=bwood_c2,D=D)      = (bwood_c1*(d*D)^bwood_c2)
 
 cost_pfharv(F,d;chpf_c1=chpf_c1,chpf_c2=chpf_c2,chpf_c3=chpf_c3) = (chpf_c1 * (d*D)^chpf_c2 * F^chpf_c3) # Harvesting primary forest costs [€]
@@ -31,6 +31,7 @@ cost_ag(a;ca_c1=ca_c1,ca_c2=ca_c2)                              = (ca_c1*(a)^ca_
 function welfare(F,S,A,V,d,h,r,a,t;D=D,γ=γ,K=K,
                 benv_c1=benv_c1,benv_c2=benv_c2,
                 bagr_c1=bagr_c1,bagr_c2=bagr_c2,
+                bwood_c=bwood_c,
                 bwood_c1=bwood_c1,bwood_c2=bwood_c2,
                 bc_seq_c1=bc_seq_c1,bc_seq_c2=bc_seq_c2,
                 bc_sub_c1=bc_sub_c1,bc_sub_c2=bc_sub_c2,
@@ -42,7 +43,7 @@ function welfare(F,S,A,V,d,h,r,a,t;D=D,γ=γ,K=K,
   return (
     ben_env(F;benv_c1=benv_c1,benv_c2=benv_c2)
   + ben_agr(A;bagr_c1=bagr_c1,bagr_c2=bagr_c2)
-  + ben_wood(h,V,S;bwood_c1=bwood_c1,bwood_c2=bwood_c2) 
+  + ben_wood(h,V,S;bwood_c=bwood_c,bwood_c2=bwood_c2) 
   + ben_wood1(d;bwood_c1=bwood_c1, bwood_c2=bwood_c2,D)
 
   - cost_pfharv(F,d;chpf_c1=chpf_c1,chpf_c2=chpf_c2,chpf_c3=chpf_c3)
@@ -70,6 +71,7 @@ function luc_model(;
     benv_c2     = benv_c2,  # Power of the environmantal benefit
     bagr_c1     = bagr_c1,  # Multiplier of the agricultural benefits
     bagr_c2     = bagr_c2,  # Power of the agricultural benefits
+    bwood_c     = bwood_c,
     bwood_c1    = bwood_c1, # Multiplier of the wood-use benefits
     bwood_c2    = bwood_c2, # Power of the wood-use benefits
     chpf_c1     = chpf_c1,  # Multiplier of the harvesting costs of primary forest
@@ -141,11 +143,13 @@ function luc_model(;
   @constraint(m, tot_land, (F+S+A)  == (F₀+S₀+A₀) )
   @constraint(m, d <= F)
   @constraint(m, 0 <= d)
-  @constraint(m, h <= V)
-
+  @constraint(m, h <= (V/S))
+  @constraint(m, r <= S)
+  @constraint(m, abs(a - r) >= epsilon)
   @constraint(m, 0 <= h)
   @constraint(m, 0 <= a)
   @constraint(m, 0 <= r)
+  
  
   #@constraint(m, h == 0)
   #@constraint(m, r == 0)
@@ -165,6 +169,7 @@ function luc_model(;
             D=D,γ=γ,K=K,
             benv_c1=benv_c1,benv_c2=benv_c2,
             bagr_c1=bagr_c1,bagr_c2=bagr_c2,
+            bwood_c=bwood_c,
             bwood_c1=bwood_c1,bwood_c2=bwood_c2,
             bc_seq_c1=bc_seq_c1,bc_seq_c2=bc_seq_c2,
             bc_sub_c1=bc_sub_c1,bc_sub_c2=bc_sub_c2,
@@ -203,7 +208,7 @@ function luc_model(;
   ben_wood_opt    = ben_wood.(h_opt,V_opt,S_opt)
   ben_wood1_opt  = ben_wood1.(d_opt)
   cost_pfharv_opt = cost_pfharv.(F_opt,d_opt)
-  cost_sfharv_opt = cost_sfharv.(h_opt, V_opt,S_opt)
+  cost_sfharv_opt = cost_sfharv.(h_opt,V_opt,S_opt)
   cost_sfreg_opt  = cost_sfreg.(r_opt)
   cost_ag_opt       = cost_ag.(a_opt)
   welfare_opt     = welfare.(F_opt,S_opt,A_opt,V_opt,d_opt,h_opt,r_opt,a_opt,ts)
