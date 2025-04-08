@@ -145,6 +145,7 @@ crsf_c1    = 10 * (r₀+h₀*S₀/V₀) / ((r₀+h₀*S₀/V₀)^crsf_c2) # Mult
 
 ca_c2 = 1.1 #power of agri costs 
 ca_c1 = 10.0 * (a₀) / (a₀^ca_c2) #multiplier of the extension costs of agri area 
+epsilon = 1e-6 
 
 # Options
 optimizer   = Ipopt.Optimizer  # Desired optimizer (solver)
