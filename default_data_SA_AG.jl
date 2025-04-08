@@ -142,13 +142,13 @@ regeneration area of secondary forest (new regeneration from ex-primary forest a
 Hence it is such that cost_sfreg is in M\$
 """
 crsf_c1    = 10 * (r₀+h₀*S₀/V₀) / ((r₀+h₀*S₀/V₀)^crsf_c2) # Multiplier of the regeneration costs of secondary forest
-
+epsilon = 1e-6 
 ca_c2 = 1.1 #power of agri costs 
 ca_c1 = 10.0 * (a₀) / (a₀^ca_c2) #multiplier of the extension costs of agri area 
 
 # Options
 optimizer   = Ipopt.Optimizer  # Desired optimizer (solver)
-opt_options = Dict("max_cpu_time" => 300.0, "print_level" => 5, "max_iter" => 100000)
+opt_options = Dict("max_cpu_time" => 60.0, "print_level" => 5, "max_iter" => 1000)
 T           = 2000             # Time horizon (years)
 ns          = 201;             # Number of points in the time grid - seems not to influence much the results (good!)
 
