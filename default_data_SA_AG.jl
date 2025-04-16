@@ -1,4 +1,5 @@
 
+
 # ------------------------------------------------------------------------------
 # BASE PARAMETERS/SETTINGS
 
@@ -34,7 +35,7 @@ _tot_vol = 187_448_000_000 / 1_000_000 # Total forest tibmer volumes [M m^3] (no
 _h_vol   = 418_480_562 / 1_000_000 # Total "produced" timber volumes [M m^3] (not used in the model, only to compute parameters) (production quantity of roundwood in FAO)
 _agr_unit_value = 266_815_276 *1000  / (A₀* 1_000_000) # $/ha from the value of agr production (total) in K$
 D          = (_tot_vol - V₀) / F₀  # Density of the primary forest (constant) [m^3/ha]
-σ          = 0.4 # Discount rate 
+σ          = 0.04 # Discount rate 
 K          = 600  # Maximum density of the secondary forest (i.e. carrying capacity)
 γ          = 0.9 # Growth rate of the logistic function in terms of density
 co2seq     = 0.907 # Tons of CO2 eq sequestrated by 1 cubic meter of wood (source: mean of Lobianco et oth. (2016) "Carbon mitigation potential of the French forest sector under threat of combined physical and market impacts due to climate change", Table 2)
@@ -71,7 +72,8 @@ ben_wood = (300) * hV
 That is, the wood benefits is equal to the \$/m^3 value from export value multiplied by harvested initial volumes (in Mm^3),
 Hence it is such that ben_wood is in M/\$
 """
-bwood_c1   = 5.69*100.7563045* (d₀*D + h₀) / ((d₀*D + h₀)^bwood_c2 ) # Multiplier of the wood-use benefits
+bwood_c  = 5.69*100.7563045* ( h₀) / ((h₀)^bwood_c2 ) # Multiplier of the wood-use benefits
+bwood_c1 = 5.69*100.7563045* ( d₀) / ((d₀)^bwood_c2 )
 # --------
 bc_seq_c2      = 0             # Carbon (seq) price growth rate
 """
@@ -142,14 +144,15 @@ regeneration area of secondary forest (new regeneration from ex-primary forest a
 Hence it is such that cost_sfreg is in M\$
 """
 crsf_c1    = 10 * (r₀+h₀*S₀/V₀) / ((r₀+h₀*S₀/V₀)^crsf_c2) # Multiplier of the regeneration costs of secondary forest
-epsilon = 1e-6 
+
 ca_c2 = 1.1 #power of agri costs 
 ca_c1 = 10.0 * (a₀) / (a₀^ca_c2) #multiplier of the extension costs of agri area 
+epsilon = 1e-6  # Small value for tolerance
 
 # Options
 optimizer   = Ipopt.Optimizer  # Desired optimizer (solver)
-opt_options = Dict("max_cpu_time" => 60.0, "print_level" => 5, "max_iter" => 1000)
+opt_options = Dict("max_cpu_time" => 60.0, "print_level" => 5, "max_iter" => 60000)
 T           = 2000             # Time horizon (years)
-ns          = 201;             # Number of points in the time grid - seems not to influence much the results (good!)
+ns          = 401;             # Number of points in the time grid - seems not to influence much the results (good!)
 
 
